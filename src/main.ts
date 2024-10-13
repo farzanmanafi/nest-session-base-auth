@@ -36,6 +36,7 @@ async function bootstrap() {
     new ValidationPipe({
       whitelist: true, // Strip properties that don't have decorators
       transform: true, // Transform input to the expected data types
+      forbidNonWhitelisted: true,
     }),
   );
 
