@@ -1,5 +1,12 @@
-import { IsString, IsEmail, MinLength } from 'class-validator';
+import {
+  IsString,
+  IsEmail,
+  MinLength,
+  IsEnum,
+  IsOptional,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { UserRole } from 'src/user/enum/user-role.enum';
 
 export class AuthSignupDto {
   @ApiProperty({ description: 'The username of the user', example: 'john_doe' })
@@ -19,4 +26,8 @@ export class AuthSignupDto {
   })
   @MinLength(6)
   password: string;
+
+  @IsEnum(UserRole)
+  @IsOptional()
+  role?: UserRole; // Optional: Can only be provided if allowed
 }
