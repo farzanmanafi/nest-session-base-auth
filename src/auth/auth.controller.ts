@@ -11,6 +11,7 @@ import {
   NotFoundException,
   BadRequestException,
   Param,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthSignupDto } from './dto/auth-signup.dto';
@@ -28,11 +29,16 @@ import { ApiDisableTwoFactor } from './decorators/apo-disable-two-factor.decorat
 import { ApiEnableTwoFactor } from './decorators/api-enable-two-factor.decorator';
 import { ApiVerifyTwoFactor } from './decorators/api-verify-two-factor.decorator';
 import { ApiLoginWithTwoFactor } from './decorators/api-login-with-two-factor.decorator';
+import { UserActivityService } from 'src/user-activity/user-activity.service';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly userActivityService: UserActivityService, // Injecting the logging service
+  ) {}
 
   @Post('signup')
   @ApiSignup()
@@ -50,6 +56,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @Throttle({ default: { limit: 5, ttl: 30000 } })
   @ApiLogin() // Apply the login decorator
   async login(
     @Body() authLoginDto: AuthLoginDto,
